@@ -1,31 +1,48 @@
+version: "3.8"
+
 services:
   api:
     build: .
+    container_name: nest-api
     ports:
-      - '3000:3000'
-    environment:
-      - DATABASE_URL=postgresql://postgres:1234@db:5432/mydb
+      - "3000:3000"
+    env_file:
+      - .env.docker
     depends_on:
       - db
+    networks:
+      - app-network
 
   db:
     image: postgres:15
+    container_name: postgres-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: mydb
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
 
   krakend:
     image: devopsfaith/krakend:2.4
+    container_name: krakend-gateway
     volumes:
       - ./krakend:/etc/krakend
     ports:
       - "8080:8080"
     command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    depends_on:
+      - api
+    networks:
+      - app-network
 
 volumes:
   pgdata:
+
+networks:
+  app-network:
+    driver: bridge

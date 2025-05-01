@@ -5,10 +5,6 @@ import { Url } from './urls.entity';
 import { Repository } from 'typeorm';
 import { CreateUrlDto } from './create-url.dto';
 
-jest.mock('nanoid', () => ({
-  nanoid: () => 'abc123',
-}));
-
 describe('UrlsService', () => {
   let service: UrlsService;
   let repository: Repository<Url>;

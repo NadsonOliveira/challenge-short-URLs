@@ -13,7 +13,7 @@ export class UrlsController {
   @Post('shorten')
   @ApiOperation({ summary: 'Encurtar uma nova URL' })
   @ApiBody({ type: CreateUrlDto })
-  @ApiResponse({ status: 201, description: 'URL encurtada com sucesso.' })
+  @ApiResponse({ status: 200, description: 'URL encurtada com sucesso.' })
   async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: any) {
     return this.urlsService.createShortUrl(createUrlDto, req.user?.id);
   }
@@ -23,7 +23,7 @@ export class UrlsController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Encurtar uma nova URL (autenticado)' })
   @ApiBody({ type: CreateUrlDto })
-  @ApiResponse({ status: 201, description: 'URL encurtada e associada ao usuário.' })
+  @ApiResponse({ status: 200, description: 'URL encurtada e associada ao usuário.' })
   async shortenUrlAuthenticated(@Body() createUrlDto: CreateUrlDto, @Req() req: any) {
     return this.urlsService.createShortUrl(createUrlDto, req.user.id);
   }

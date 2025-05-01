@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm'; 
-import { nanoid } from 'nanoid'; 
 import { Url } from './urls.entity';
 import { CreateUrlDto } from './create-url.dto';
+import { generateShortCode } from 'src/utils/shortCode'
 
 @Injectable()
 export class UrlsService {
@@ -13,7 +13,8 @@ export class UrlsService {
   ) {}
 
   async createShortUrl(createUrlDto: CreateUrlDto, userId?: string) {
-    const shortCode = nanoid(6);
+    const shortCode =  generateShortCode();
+
   
     const newUrl = this.urlRepository.create({
       originalUrl: createUrlDto.originalUrl,

@@ -1,0 +1,97 @@
+{
+  "version": 3,
+  "name": "My API Gateway",
+  "port": 8080,
+  "timeout": "3000ms",
+  "endpoints": [
+    {
+      "endpoint": "/users",
+      "method": "GET",
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/users"
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend-jsonschema": {
+          "response": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "number" },
+                "email": { "type": "string" }
+              },
+              "required": ["id", "email"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "endpoint": "/urls",
+      "method": "GET",
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls"
+        }
+      ]
+    },
+    {
+      "endpoint": "/urls/shorten",
+      "method": "POST",
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls/shorten"
+        }
+      ]
+    },
+    {
+      "endpoint": "/urls/shorten/auth",
+      "method": "POST",
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls/shorten/auth"
+        }
+      ]
+    },
+    {
+      "endpoint": "/urls/{shortCode}",
+      "method": "GET",
+      "input_params": ["shortCode"],
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls/{shortCode}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/urls/{shortCode}",
+      "method": "PATCH",
+      "input_params": ["shortCode"],
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls/{shortCode}"
+        }
+      ]
+    },
+    {
+      "endpoint": "/urls/{shortCode}",
+      "method": "DELETE",
+      "input_params": ["shortCode"],
+      "backend": [
+        {
+          "host": ["http://nest-api:3000"],
+          "url_pattern": "/urls/{shortCode}"
+        }
+      ]
+    }
+  ]
+}

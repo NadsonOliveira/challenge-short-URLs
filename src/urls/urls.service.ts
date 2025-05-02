@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm'; 
 import { Url } from './urls.entity';
 import { CreateUrlDto } from './create-url.dto';
-import { generateShortCode } from 'src/utils/shortCode'
+import { generateShortCode } from '../utils//shortCode'
 
 @Injectable()
 export class UrlsService {

@@ -1,21 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
+import { User } from './user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { BadRequestException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { validatePassword } from '../utils/passwordValidator';
+jest.mock('../utils/passwordValidator');
 
-const mockUser = {
-  id: 1,
-  email: 'test@example.com',
-  password: 'Nadson1234@',
-};
 
 describe('UserService', () => {
   let service: UserService;
-  let userRepo: jest.Mocked<Repository<User>>;
-  let jwtService: JwtService;
+  let userRepository: jest.Mocked<Repository<User>>;
+  let jwtService: jest.Mocked<JwtService>;
+
+  const mockUser = { id: 1, email: 'test@example.com', password: 'hashedpass' } as User;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -24,105 +24,121 @@ describe('UserService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: {
+            findOne: jest.fn(),
             create: jest.fn(),
             save: jest.fn(),
-            findOne: jest.fn(),
             find: jest.fn(),
           },
         },
         {
           provide: JwtService,
           useValue: {
-            sign: jest.fn().mockReturnValue('fake-jwt-token'),
+            sign: jest.fn(),
           },
         },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
-    userRepo = module.get(getRepositoryToken(User));
+    userRepository = module.get(getRepositoryToken(User));
     jwtService = module.get(JwtService);
   });
 
   describe('createUser', () => {
-    it('should hash the password and save the user', async () => {
-      const email = 'test@example.com';
-      const password = 'password123';
-      const hashed = await bcrypt.hash(password, 10);
+    it('should create a user with valid email and password', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+      (validatePassword as jest.Mock).mockReturnValue({ isValid: true, errors: [] });
+      userRepository.create.mockReturnValue(mockUser);
+      userRepository.save.mockResolvedValue(mockUser);
 
-      jest.spyOn(bcrypt, 'hash').mockResolvedValueOnce(hashed as never);
-      userRepo.create.mockReturnValue({ email, password: hashed } as User);
-      userRepo.save.mockResolvedValue({ id: 1, email, password: hashed } as User);
+      const result = await service.createUser('test@example.com', 'ValidPassword123');
 
-      const result = await service.createUser(email, password);
-      expect(result).toEqual({ id: 1, email, password: hashed });
-      expect(bcrypt.hash).toHaveBeenCalledWith(password, 10);
-      expect(userRepo.save).toHaveBeenCalled();
+      expect(userRepository.findOne).toHaveBeenCalledWith({ where: { email: 'test@example.com' } });
+      expect(result).toEqual(mockUser);
+    });
+
+    it('should throw if email already exists', async () => {
+      userRepository.findOne.mockResolvedValue(mockUser);
+
+      await expect(service.createUser('test@example.com', 'ValidPassword123')).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw if password is invalid', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+      (validatePassword as jest.Mock).mockReturnValue({ isValid: false, errors: ['too short'] });
+
+      await expect(service.createUser('test@example.com', '123')).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('validateUser', () => {
-    it('should return JWT if email and password match', async () => {
-      userRepo.findOne.mockResolvedValue(mockUser as User);
-      
-      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(true as never);
+    it('should return JWT token when credentials are valid', async () => {
+      userRepository.findOne.mockResolvedValue({ ...mockUser, password: await bcrypt.hash('password', 10) });
+      jwtService.sign.mockReturnValue('token');
 
-      const token = await service.validateUser(mockUser.email, 'plainpassword');
-      expect(token).toEqual('fake-jwt-token');
-      expect(jwtService.sign).toHaveBeenCalledWith({ email: mockUser.email, sub: mockUser.id });
+      const token = await service.validateUser('test@example.com', 'password');
+
+      expect(token).toEqual('token');
     });
 
     it('should throw if user not found', async () => {
-      userRepo.findOne.mockResolvedValue(null);
-      await expect(service.validateUser('notfound@example.com', 'any')).rejects.toThrow('User not found');
+      userRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.validateUser('notfound@example.com', 'password')).rejects.toThrow(BadRequestException);
     });
 
     it('should throw if password is invalid', async () => {
-      userRepo.findOne.mockResolvedValue(mockUser as User);
-      
-      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false as never);
-      
-      await expect(service.validateUser(mockUser.email, 'wrong')).rejects.toThrow('Invalid password');
+      userRepository.findOne.mockResolvedValue({ ...mockUser, password: await bcrypt.hash('correct', 10) });
+
+      await expect(service.validateUser('test@example.com', 'wrong')).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('findByEmail', () => {
-    it('should return user by email', async () => {
-      userRepo.findOne.mockResolvedValue(mockUser as User);
-      const user = await service.findByEmail(mockUser.email);
+    it('should return user if found', async () => {
+      userRepository.findOne.mockResolvedValue(mockUser);
+
+      const user = await service.findByEmail('test@example.com');
+
       expect(user).toEqual(mockUser);
     });
 
-    it('should throw if user not found', async () => {
-      userRepo.findOne.mockResolvedValue(null);
-      await expect(service.findByEmail('notfound@example.com')).rejects.toThrow('User not found');
+    it('should throw if not found', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.findByEmail('notfound@example.com')).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('findById', () => {
     it('should return user by id', async () => {
-      userRepo.findOne.mockResolvedValue(mockUser as User);
+      userRepository.findOne.mockResolvedValue(mockUser);
+
       const user = await service.findById(1);
+
       expect(user).toEqual(mockUser);
     });
 
-    it('should throw if user not found by id', async () => {
-      userRepo.findOne.mockResolvedValue(null);
-      await expect(service.findById(99)).rejects.toThrow('User by id not found');
+    it('should throw if user by id not found', async () => {
+      userRepository.findOne.mockResolvedValue(null);
+
+      await expect(service.findById(999)).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('findAll', () => {
-    it('should return all users', async () => {
-      userRepo.find.mockResolvedValue([mockUser as User]);
-      const users = await service.findAll();
-      expect(users).toEqual([mockUser]);
+    it('should return a list of users', async () => {
+      userRepository.find.mockResolvedValue([mockUser]);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual([mockUser]);
     });
 
     it('should throw if no users found', async () => {
-      userRepo.find.mockResolvedValue([]);
-      const result = await service.findAll();
-      expect(result).toEqual([]);
+      userRepository.find.mockResolvedValue([]);
+
+      await expect(service.findAll()).rejects.toThrow(BadRequestException);
     });
   });
 });

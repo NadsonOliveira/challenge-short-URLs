@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { validatePassword } from 'src/utils/passwordValidator';
+import { validatePassword } from '../utils/passwordValidator';
 
 @Injectable()
 export class UserService {
@@ -61,12 +61,11 @@ export class UserService {
     return user;
   }
 
-   async findAll(): Promise<User[]> {
+  async findAll(): Promise<User[]> {
     const users = await this.userRepository.find();
-    if(!users) {
-      throw new BadRequestException('Users not found')
-    }  
-    return users
+    if (!users || users.length === 0) {
+      throw new BadRequestException('Users not found');
+    }
+    return users;
   }
-  
 }

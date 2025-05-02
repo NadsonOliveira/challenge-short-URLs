@@ -5,21 +5,21 @@ import { ApiProperty } from '@nestjs/swagger';
 export class User {
   @ApiProperty({
     example: 1,
-    description: 'Identificador único do usuário',
+    description: 'Unique user identifier',
   })
   @PrimaryGeneratedColumn()
   id: number;
 
   @ApiProperty({
     example: 'john.doe@example.com',
-    description: 'Endereço de email do usuário',
+    description: 'User email address',
   })
   @Column()
   email: string;
 
   @ApiProperty({
     example: 'hashedpassword123',
-    description: 'Senha do usuário (hash)',
+    description: 'User password (hash)',
   })
   @Column()
   password: string;

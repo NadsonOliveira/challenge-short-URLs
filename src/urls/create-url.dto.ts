@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsUrl } from 'class-validator';
 
 export class CreateUrlDto {
   @ApiProperty({
-    description: 'URL original que será encurtada',
+    description: 'Original URL that will be shortened',
     example: 'https://meusite.com/pagina-importante',
   })
   @IsString()

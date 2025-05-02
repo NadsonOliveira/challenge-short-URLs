@@ -6,8 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Go Cloud API') 
-    .setDescription('Documentação da API Go Cloud') 
+    .setTitle('API') 
+    .setDescription('API documentation') 
     .setVersion('1.0') 
     .addBearerAuth() 
     .build();

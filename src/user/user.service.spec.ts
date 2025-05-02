@@ -9,7 +9,7 @@ import * as bcrypt from 'bcryptjs';
 const mockUser = {
   id: 1,
   email: 'test@example.com',
-  password: 'hashedpassword',
+  password: 'Nadson1234@',
 };
 
 describe('UserService', () => {

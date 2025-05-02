@@ -37,8 +37,21 @@ yarn install
 Certifique-se de que as variáveis de ambiente estão configuradas corretamente. Crie um arquivo `.env` na raiz do projeto com as configurações necessárias. Exemplo:
 
 ```bash
-DATABASE_URL=suabaseurl
-API_KEY=suachave
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=1234
+BASE_URL=http://localhost:3000/urls
+```
+### 3. Configuração do Ambiente docker
+Certifique-se de que as variáveis de ambiente estão configuradas corretamente. Crie um arquivo `.env.docker` na raiz do projeto com as configurações necessárias. Exemplo:
+
+```bash
+DB_HOST=db
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=1234
+
 ```
 
 ### 4. Rodar Localmente
@@ -58,7 +71,7 @@ Isso irá iniciar o servidor local na porta configurada (por padrão, http://loc
 Se preferir rodar o projeto utilizando Docker, execute os seguintes comandos para construir e rodar o contêiner:
 
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 Isso irá construir a imagem Docker e iniciar os serviços definidos no `docker-compose.yml`.
@@ -72,42 +85,6 @@ npm test
 # ou
 yarn test
 ```
-
-### 7. Realizando os Testes com Docker
-
-Se você estiver utilizando Docker para rodar o projeto, você pode rodar os testes com o contêiner em execução:
-
-```bash
-docker exec -it nome_do_container npm test
-# ou
-docker exec -it nome_do_container yarn test
-```
-
-## Changelog
-
-Utilize o `CHANGELOG.md` para manter o histórico de versões do projeto. Exemplo de como as versões podem ser descritas:
-
-### v0.1.0
-- Criação do encurtador de URLs.
-
-### v0.2.0
-- Adicionada funcionalidade de autenticação.
-
-### v0.3.0
-- Implementadas operações de usuário no encurtador.
-
-### v0.4.0
-- Adicionada contabilização de acessos.
-
-## Próximos Passos
-
-1. **Deploy Kubernetes**: Será construído um pipeline de deploy para o Kubernetes.
-2. **Terraform para Deploy**: Artefatos Terraform serão criados para facilitar o deploy da infraestrutura.
-3. **GitHub Actions**: Será configurado um pipeline para lint e testes automatizados.
-4. **Multi-Tenant**: O sistema será transformado para suportar múltiplos inquilinos.
-5. **Funcionalidades Adicionais**: Mais funcionalidades serão implementadas conforme necessário.
-6. **Versões do Node.js**: As versões aceitas do Node.js serão definidas no projeto.
-7. **Hooks de Pre-Commit**: Serão configurados hooks de pre-commit ou pre-push para garantir qualidade no código.
 
 ## Melhorias
 

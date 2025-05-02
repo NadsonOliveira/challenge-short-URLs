@@ -1,19 +1,38 @@
-import { Controller, Post, Get, Patch, Delete, Param, Body, Req, Res, UseGuards, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Req,
+  Res,
+  UseGuards,
+  NotFoundException,
+} from '@nestjs/common';
 import { UrlsService } from './urls.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUrlDto } from './create-url.dto';
 import { UpdateUrlDto } from './update-url.dto';
-import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBody,
+  ApiParam,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 @ApiTags('URLs')
 @Controller('urls')
 export class UrlsController {
-  constructor(private readonly urlsService: UrlsService) { }
+  constructor(private readonly urlsService: UrlsService) {}
 
   @Post('shorten')
-  @ApiOperation({ summary: 'Encurtar uma nova URL' })
+  @ApiOperation({ summary: 'Shorten a new URL' })
   @ApiBody({ type: CreateUrlDto })
-  @ApiResponse({ status: 200, description: 'URL encurtada com sucesso.' })
+  @ApiResponse({ status: 200, description: 'URL successfully shortened.' })
   async shortenUrl(@Body() createUrlDto: CreateUrlDto, @Req() req: any) {
     return this.urlsService.createShortUrl(createUrlDto, req.user?.id);
   }
@@ -21,35 +40,34 @@ export class UrlsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('shorten/auth')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Encurtar uma nova URL (autenticado)' })
+  @ApiOperation({ summary: 'Shorten a new URL (authenticated)' })
   @ApiBody({ type: CreateUrlDto })
-  @ApiResponse({ status: 200, description: 'URL encurtada e associada ao usuário.' })
+  @ApiResponse({ status: 200, description: 'URL shortened and associated with user.' })
   async shortenUrlAuthenticated(@Body() createUrlDto: CreateUrlDto, @Req() req: any) {
     return this.urlsService.createShortUrl(createUrlDto, req.user.id);
   }
 
   @Get('/:shortCode')
-  @ApiOperation({ summary: 'Redirecionar para a URL original usando o shortCode' })
-  @ApiParam({ name: 'shortCode', type: String, description: 'Código curto da URL' })
-  @ApiResponse({ status: 302, description: 'Redirecionamento realizado com sucesso.' })
-  @ApiResponse({ status: 404, description: 'URL não encontrada.' })
+  @ApiOperation({ summary: 'Redirect to the original URL using the shortCode' })
+  @ApiParam({ name: 'shortCode', type: String, description: 'Short code of the URL' })
+  @ApiResponse({ status: 302, description: 'Redirection successful.' })
+  @ApiResponse({ status: 404, description: 'URL not found.' })
   async redirect(@Param('shortCode') shortCode: string, clicks: number, @Res() res: any) {
-    const url = await this.urlsService.findByShortCode(shortCode,clicks);
+    const url = await this.urlsService.findByShortCode(shortCode, clicks);
 
     if (!url || url.deletedAt) {
-      throw new NotFoundException('URL não encontrada');
+      throw new NotFoundException('URL not found.');
     }
 
     await this.urlsService.registerClick(url);
-
     return res.redirect(url.originalUrl);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Listar todas as URLs encurtadas do usuário autenticado' })
-  @ApiResponse({ status: 200, description: 'Lista de URLs retornada com sucesso.' })
+  @ApiOperation({ summary: 'List all shortened URLs of the authenticated user' })
+  @ApiResponse({ status: 200, description: 'List of URLs successfully returned.' })
   async listUserUrls(@Req() req: any) {
     return this.urlsService.findAllByUser(req.user.id);
   }
@@ -57,25 +75,27 @@ export class UrlsController {
   @UseGuards(AuthGuard('jwt'))
   @Patch(':shortCode')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Atualizar uma URL encurtada existente' })
-  @ApiParam({ name: 'shortCode', type: String, description: 'ID da URL' })
+  @ApiOperation({ summary: 'Update an existing shortened URL' })
+  @ApiParam({ name: 'shortCode', type: String, description: 'Short code of the URL' })
   @ApiBody({ type: UpdateUrlDto })
-  @ApiResponse({ status: 200, description: 'URL atualizada com sucesso.' })
-  @ApiResponse({ status: 404, description: 'URL não encontrada.' })
-  async updateUrl(@Param('shortCode') shortCode: string, @Body() updateUrlDto: UpdateUrlDto, @Req() req: any) {
+  @ApiResponse({ status: 200, description: 'URL successfully updated.' })
+  @ApiResponse({ status: 404, description: 'URL not found.' })
+  async updateUrl(
+    @Param('shortCode') shortCode: string,
+    @Body() updateUrlDto: UpdateUrlDto,
+    @Req() req: any,
+  ) {
     return this.urlsService.updateUserUrl(shortCode, updateUrlDto.newUrl, req.user.id);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':shortCode')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Deletar uma URL encurtada' })
-  @ApiParam({ name: 'shortCode', type: String, description: 'Código curto da URL' })
-  @ApiResponse({ status: 200, description: 'URL deletada com sucesso.' })
-  @ApiResponse({ status: 404, description: 'URL não encontrada ou você não tem permissão.' })
+  @ApiOperation({ summary: 'Delete a shortened URL' })
+  @ApiParam({ name: 'shortCode', type: String, description: 'Short code of the URL' })
+  @ApiResponse({ status: 200, description: 'URL successfully deleted.' })
+  @ApiResponse({ status: 404, description: 'URL not found or unauthorized.' })
   async deleteUrl(@Param('shortCode') shortCode: string, @Req() req: any) {
     return this.urlsService.deleteUserUrl(shortCode, req.user.id);
   }
-  
-  
 }

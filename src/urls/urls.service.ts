@@ -57,14 +57,14 @@ export class UrlsService {
     });
 
     if (!url) {
-      throw new NotFoundException('URL não encontrada ou você não tem permissão.');
+      throw new NotFoundException('URL not found or you do not have permission.');
     }
 
     url.originalUrl = newUrl;
     url.updatedAt = new Date();
     await this.urlRepository.save(url);
 
-    return { message: 'URL atualizada com sucesso.' };
+    return { message: 'URL updated successfully.' };
   }
 
   async deleteUserUrl(shortCode: string, userId:string) {
@@ -73,12 +73,12 @@ export class UrlsService {
     });
   
     if (!url) {
-      throw new NotFoundException('URL não encontrada ou você não tem permissão.');
+      throw new NotFoundException('URL not found or you do not have permission.');
     }
   
     url.deletedAt = new Date(); 
     await this.urlRepository.save(url);
   
-    return { message: 'URL deletada com sucesso.' };
+    return { message: 'URL successfully deleted.' };
   }
 }

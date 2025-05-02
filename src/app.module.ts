@@ -7,7 +7,7 @@ import { UrlsModule } from './urls/urls.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
-    envFilePath: '.env',
+    envFilePath: ['.env', '.env.docker'],
     isGlobal: true,
   }),
   JwtModule.register({

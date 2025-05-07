@@ -19,6 +19,7 @@ import { UrlsModule } from './urls/urls.module';
     host: process.env.DATABASE_HOST || (process.env.NODE_ENV === 'development' ? 'localhost' : 'db'),
     port: parseInt(process.env.DB_PORT!, 10) || 5432,
     username: process.env.DB_USER,
+    url: process.env.DATABASE_URL,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
     entities: [__dirname + '/**/*.entity.{ts,js}'],

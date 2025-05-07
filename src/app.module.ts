@@ -16,7 +16,7 @@ import { UrlsModule } from './urls/urls.module';
   }),
   TypeOrmModule.forRoot({
     type: 'postgres',
-    host: process.env.DB_HOST || (process.env.NODE_ENV === 'development' ? 'localhost' : 'db'),
+    host: process.env.DATABASE_HOST || (process.env.NODE_ENV === 'development' ? 'localhost' : 'db'),
     port: parseInt(process.env.DB_PORT!, 10) || 5432,
     username: process.env.DB_USER,
     password: process.env.DB_PASS,

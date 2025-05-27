@@ -6,7 +6,7 @@ Descrição curta sobre o propósito do projeto.
 
 Antes de rodar o projeto, verifique se você possui as seguintes ferramentas instaladas:
 
-- [Node.js](https://nodejs.org/) (Recomendado: versão X.X.X)
+- [Node.js](https://nodejs.org/) (Recomendado: versão 22.14.0)
 - [Docker](https://www.docker.com/) (caso utilize containers)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [Git](https://git-scm.com/)
@@ -86,6 +86,32 @@ npm test
 yarn test
 ```
 
+### 7. Comandos para rodar arquivos 
+
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+kubectl get pods
+kubectl get svc
+
+
+utilize este comando para rodar o server kubernetes
+```bash
+kubectl port-forward service/go-cloud-api-service 8080:80
+```
+
+utilize o comando abaixo para criar dados de users, para testes.
+
+```bash
+curl -X POST http://localhost:8080/users \
+>   -H "Content-Type: application/json" \
+>   -d '{"email": "teste@teste.com", "password": "Senha1234@"}'
+```
+comando para listar dados.
+
+```bash
+curl http://localhost:8080/users
+```
 ## Melhorias
 
 Este projeto está em constante evolução, e várias melhorias podem ser feitas. Algumas ideias incluem:

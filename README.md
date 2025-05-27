@@ -112,6 +112,11 @@ comando para listar dados.
 ```bash
 curl http://localhost:8080/users
 ```
+
+### 8. Link de deploy para listar USERS
+
+https://short-urls.up.railway.app/users
+
 ## Melhorias
 
 Este projeto está em constante evolução, e várias melhorias podem ser feitas. Algumas ideias incluem:
